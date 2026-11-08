@@ -5,7 +5,7 @@
 An AI-powered web application that detects whether an SMS message is **SPAM** or **SAFE** in just 1 second. Built as a Minor Project using Machine Learning.
 
 ### 🔴 Live Demo
-**Live App Link:** `https://your-app-link.streamlit.app` *(Update after deployment)*
+**Live App Link:** https://spam-message-detector-4yhy5pdnswqsegfoiuczgk.streamlit.app/
 
 ---
 
