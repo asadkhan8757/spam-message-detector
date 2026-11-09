@@ -7,30 +7,40 @@ from sklearn.linear_model import LogisticRegression
 # ---------- PAGE SETTING ----------
 st.set_page_config(page_title="SpamBusters | AI Detector", page_icon="🛡️", layout="centered")
 
-# ---------- CSS - CHOTA COMPACT DESIGN ----------
+# ---------- CSS - SLIGHTLY BIGGER COMPACT DESIGN ----------
 st.markdown("""
 <style>
 .about-box {
     background-color: #FFF8DC;
-    padding: 10px 12px;
-    font-size: 12.5px;
-    line-height: 1.35;
-    border-radius: 10px;
-    margin-bottom: 8px;
+    padding: 13px 15px;
+    font-size: 14px;
+    line-height: 1.45;
+    border-radius: 12px;
+    margin-bottom: 10px;
     border-left: 4px solid #FF4B4B;
     color: #333;
 }
 .info-box {
     background-color: #FFFFFF;
-    padding: 8px 6px;
-    border-radius: 10px;
+    padding: 12px 8px;
+    border-radius: 12px;
     text-align: center;
     border: 1px solid #e0e0e0;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.08);
 }
-.info-box h3 { font-size: 14px; margin: 0px; color: #333; }
-.info-box p { font-size: 11px; line-height: 1.2; margin: 2px 0; color: #666; }
-.stButton>button { background-color: #FF4B4B; color: white; font-weight: bold; border-radius: 10px; height: 45px; }
+.info-box h3 { font-size: 16px; margin: 0px; color: #333; }
+.info-box p { font-size: 13px; line-height: 1.3; margin: 3px 0; color: #666; }
+.team-box {
+    background-color: #F0F2F6;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    text-align: center;
+    margin-top: 10px;
+}
+.team-box b { font-size: 15px; }
+.stButton>button { background-color: #FF4B4B; color: white; font-weight: bold; border-radius: 10px; height: 48px; font-size: 16px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -40,7 +50,7 @@ if "logged_in" not in st.session_state:
 
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align:center;'>🛡️ SpamBusters Login</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; font-size:13px;'>AI Spam & Phishing Detector me welcome hai</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:14px;'>Welcome to AI Spam & Phishing Detector</p>", unsafe_allow_html=True)
     
     user = st.text_input("Username")
     pwd = st.text_input("Password", type="password")
@@ -50,7 +60,7 @@ if not st.session_state.logged_in:
             st.session_state.logged_in = True
             st.rerun()
         else:
-            st.error("Galat Username ya Password!")
+            st.error("Wrong Username or Password!")
     
     st.info("Demo Login -> Username: spambusters | Password: team123")
     st.stop()
@@ -63,24 +73,24 @@ with col_top2:
         st.rerun()
 
 # ---------- TITLE ----------
-st.markdown("<h1 style='text-align:center; color:#FF4B4B; font-size:30px;'>🛡️ AI Spam & Phishing<br>Detector</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#FF4B4B; font-size:32px;'>🛡️ AI Spam & Phishing<br>Detector</h1>", unsafe_allow_html=True)
 
-# ---------- ABOUT - CHOTA ----------
+# ---------- ABOUT ----------
 st.markdown("""
 <div class="about-box">
 <b>💡 About Our Project</b><br>
-AI se fake SMS jaise <b>Free Prize, Bank KYC Block</b> ko pakad ke users ko fraud se bachata hai.
+This project uses AI to detect fake SMS like <b>Free Prize, Bank KYC Block</b> and protect users from fraud.
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- HOW IT WORKS - ALAG CHOTA BOX ----------
+# ---------- HOW IT WORKS ----------
 st.markdown("""
 <div class="about-box">
-<b>⚙️ How It Works?</b> Model message ke words ka pattern samajhta hai, fraud lage to <b>SPAM</b>, warna <b>SAFE</b>.
+<b>⚙️ How It Works?</b> Our model reads the words of a message and understands its pattern. If it looks like fraud or phishing, it marks it as <b>SPAM</b>, otherwise <b>SAFE</b>.
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- 3 CHOTE BOXES ----------
+# ---------- 3 BOXES ----------
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown('<div class="info-box"><h3>📊 Dataset</h3><p>5,574 SMS<br>4,827 Ham + 747 Spam</p></div>', unsafe_allow_html=True)
@@ -98,7 +108,6 @@ def load_model():
         url = "https://raw.githubusercontent.com/justmarkham/pycon-2016-tutorial/master/data/sms.tsv"
         df = pd.read_csv(url, sep='\t', header=None, names=['label','message'])
     except:
-        # Agar internet se data na aaye to sample data
         data = {
             'label': ['ham','ham','spam','spam','ham','spam'],
             'message': ['Hey are you coming today', 'Call me later', 'You won FREE prize click here', 'Your bank KYC blocked urgent', 'Good morning', 'Congratulations you won lottery']
@@ -121,25 +130,25 @@ def clean_text(text):
     text = re.sub(r'[^a-z0-9 ]', ' ', text)
     return text
 
-# ---------- CHECK SECTION - MESSAGE AUR LINK ALAG-ALAG ----------
+# ---------- CHECK SECTION - MESSAGE AND LINK SEPARATE ----------
 st.markdown("### 🔍 Check Your Message")
 
 col_msg, col_link = st.columns(2)
 
 with col_msg:
     st.markdown("**✉️ Enter Your Message Here**")
-    user_msg = st.text_area("msg", placeholder="Example: You won FREE prize...", height=100, label_visibility="collapsed")
+    user_msg = st.text_area("msg", placeholder="Example: You won FREE prize...", height=110, label_visibility="collapsed")
 
 with col_link:
     st.markdown("**🔗 Enter Link / URL Here**")
     user_link = st.text_input("link", placeholder="Example: https://free-prize-xyz.com", label_visibility="collapsed")
-    st.caption("Link ko alag se check karne ke liye yahan paste karein.")
+    st.caption("Paste the link here to check it separately.")
 
 # ---------- CHECK BUTTON ----------
 if st.button("Check Now 🚀", use_container_width=True):
     full_text = (user_msg + " " + user_link).strip()
     if full_text == "":
-        st.warning("Pehle Message ya Link to daalo!")
+        st.warning("Please enter a Message or Link first!")
     else:
         cleaned = clean_text(full_text)
         vec_text = vectorizer.transform([cleaned])
@@ -148,10 +157,22 @@ if st.button("Check Now 🚀", use_container_width=True):
 
         if pred == 1:
             st.error(f"🚨 **SPAM / FRAUD DETECTED!** ({prob:.1f}% Sure)")
-            st.write("⚠️ Ye message fraud lag raha hai. Link pe click mat karna, OTP share mat karna.")
+            st.write("⚠️ This message looks like fraud. Do not click the link and do not share OTP.")
         else:
             st.success(f"✅ **SAFE MESSAGE** ({prob:.1f}% Sure)")
-            st.write("Ye message safe lag raha hai.")
+            st.write("This message looks safe.")
 
 st.markdown("---")
-st.markdown("<p style='text-align:center; font-size:11px; color:gray;'>Made by Team SpamBusters | AI Spam Detector</p>", unsafe_allow_html=True)
+
+# ---------- TEAM MEMBERS ----------
+st.markdown("""
+<div class="team-box">
+<b>👨‍💻 Developed By - Team SpamBusters</b><br><br>
+<b>Asad Khan</b> : 2300101776<br>
+<b>Arman Ali</b> : 2300100698<br>
+<b>Atif Khan</b> : 2300101447<br>
+<b>Ashvani Kumar Upadhyay</b> : 2301012087
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<p style='text-align:center; font-size:12px; color:gray; margin-top:10px;'>Made by Team SpamBusters | AI Spam Detector</p>", unsafe_allow_html=True)
