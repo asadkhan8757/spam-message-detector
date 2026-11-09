@@ -1,11 +1,28 @@
 import streamlit as st
 import pandas as pd
 import re
+import os
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
 st.set_page_config(page_title="SpamBusters | AI Detector", page_icon="🛡️", layout="centered")
+
+# ---------- PERMANENT HISTORY - CSV FILE ME SAVE HOGA ----------
+HISTORY_FILE = "history.csv"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            df = pd.read_csv(HISTORY_FILE)
+            return df.to_dict('records')
+        except:
+            return []
+    return []
+
+def save_history(history_list):
+    df = pd.DataFrame(history_list)
+    df.to_csv(HISTORY_FILE, index=False)
 
 st.markdown("""
 <style>
@@ -24,7 +41,7 @@ st.markdown("""
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "history" not in st.session_state:
-    st.session_state.history = []
+    st.session_state.history = load_history()
 
 if not st.session_state.logged_in:
     st.markdown("<h2 style='text-align:center;'>🛡️ SpamBusters Login</h2>", unsafe_allow_html=True)
@@ -78,7 +95,6 @@ def clean_text(text):
     text = re.sub(r'[^a-z0-9 ]', ' ', text)
     return text
 
-# --- KEYWORD LIST - YEHI FIX HAI ---
 SPAM_KEYWORDS = ["won", "prize", "lottery", "congratulations", "congrats", "free recharge", "kyc", "blocked", "block", "otp", "pay fee", "999", "claim", "urgent", "verify", "account", "bank", "iphone", "50000", "selected for job", "earn daily", "click", "link", "offer", "winner", "cash", "reward"]
 
 st.markdown("### 🔍 Check Your Message")
@@ -98,7 +114,6 @@ if st.button("Check Now 🚀", use_container_width=True):
     else:
         cleaned = clean_text(full_text)
         lower_text = full_text.lower()
-        # Pehle keyword check - agar 1 bhi word mila to SPAM
         found = [w for w in SPAM_KEYWORDS if w in lower_text]
         vec_text = vectorizer.transform([cleaned])
         pred = model.predict(vec_text)[0]
@@ -107,7 +122,9 @@ if st.button("Check Now 🚀", use_container_width=True):
             pred = 1
             prob = 99.5
         result = "SPAM" if pred == 1 else "SAFE"
-        st.session_state.history.insert(0, {"message": user_msg if user_msg else "-", "link": user_link if user_link else "-", "result": result, "prob": round(prob,1), "time": datetime.now().strftime("%d %b, %I:%M %p")})
+        new_entry = {"message": user_msg if user_msg else "-", "link": user_link if user_link else "-", "result": result, "prob": round(prob,1), "time": datetime.now().strftime("%d %b, %I:%M %p")}
+        st.session_state.history.insert(0, new_entry)
+        save_history(st.session_state.history)
         if pred == 1:
             st.error(f"🚨 **SPAM / FRAUD DETECTED!** ({prob:.1f}% Sure)")
             st.write("⚠️ This message looks like fraud. Do not click the link and do not share OTP.")
@@ -121,6 +138,8 @@ with h1: st.markdown(f"### 🕒 Search History ({len(st.session_state.history)})
 with h2:
     if st.button("🗑️ Clear History"):
         st.session_state.history = []
+        if os.path.exists(HISTORY_FILE):
+            os.remove(HISTORY_FILE)
         st.rerun()
 if len(st.session_state.history) == 0:
     st.caption("No history yet. Check a message to see it here.")
@@ -130,5 +149,5 @@ else:
         color = "#FF4B4B" if item["result"]=="SPAM" else "#28A745"
         st.markdown(f"""<div class="history-box"><b style="color:{color};">{icon} {item["result"]} - {item["prob"]}% Sure</b> &nbsp; <span style="color:#AAAAAA; font-size:12px;">{item["time"]}</span><br><b style="color:#FFF;">Message:</b> <span style="color:#FFF;">{item["message"]}</span><br><b style="color:#FFF;">Link:</b> <span style="color:#FFF;">{item["link"]}</span></div>""", unsafe_allow_html=True)
 st.markdown("---")
-st.markdown("""<div class="team-box"><b>👨‍💻 Developed By - Team SpamBusters</b><br><br><span><b>Asad Khan</b> : 2300101776</span><br><span><b>Atif Khan</b> : 2300101447</span><br><span><b>Arman Ali</b> : 2300100698</span><br><span><b>Ashvani Kumar Upadhyay</b> : 2301012087</span></div>""", unsafe_allow_html=True)
+st.markdown("""<div class="team-box"><b>👨‍💻 Developed By - Team SpamBusters</b><br><br><span><b>Asad Khan</b> : 2300101776</span><br><span><b>Arman Ali</b> : 2300100698</span><br><span><b>Atif Khan</b> : 2300101447</span><br><span><b>Ashvani Kumar Upadhyay</b> : 2301012087</span></div>""", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; font-size:12px; color:gray; margin-top:10px;'>Made by Team SpamBusters | AI Spam Detector</p>", unsafe_allow_html=True)
